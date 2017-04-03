@@ -30,6 +30,7 @@ export const defaultTetherOptions = {
 export const defaultOptions = {
   tetherOptions: defaultTetherOptions,
   defaultClass: 'vue-tooltip-theme',
+  openOn: 'hover',
 }
 
 function createTooltip (el, value, modifiers) {
@@ -48,11 +49,18 @@ function createTooltip (el, value, modifiers) {
     classes = value.classes
   }
 
+  let openOn = directive.options.openOn
+  if (value.show) {
+    // if value is true or false, set openOn to null and controll the tooltip programmatically by the boolean
+    openOn = (typeof value.show === 'boolean') ? 'null' : value.show
+  }
+
   el._tooltip = new Tooltip({
     target: el,
     position,
     content,
     classes,
+    openOn,
     tetherOptions: directive.options.tetherOptions,
   })
 }
@@ -93,6 +101,15 @@ const directive = {
         }
       } else if (oldClasses) {
         removeClasses(drop.drop, oldClasses)
+      }
+
+      // show (open) / hide (close)
+      if (value && typeof value.show !== 'undefined') {
+        if (value.show) {
+          el._tooltip.open()
+        } else {
+          el._tooltip.close()
+        }
       }
     } else {
       createTooltip(el, value, modifiers)
